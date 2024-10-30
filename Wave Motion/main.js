@@ -78,13 +78,42 @@ const Mat = new THREE.PointsMaterial({
 const particles = new THREE.Points(Geo, Mat);
 
 const gui = new GUI();
+
 const Objects = {
   wavelength: 1,
-  amplitude: 1
+  amplitude: 1,
+  function: Math.sin
 }
 
-gui.add(Objects,'wavelength', 0.005, 3, 0.09).name('Wavelength').onChange((value)=> wavelength = value);
-gui.add(Objects,'amplitude', 0.2, 6, 0.09).name('Amplitude').onChange((value)=> amplitude = value);
+const changeFunction = (Math_function) => {
+  switch (Math_function) {
+    case "Cos":
+      Objects.function = Math.cos;
+      break;
+    case "Tan":
+      Objects.function = Math.tan;
+      break;
+    default:
+      Objects.function = Math.sin;
+      break;
+  }
+}
+
+gui.add(Objects, 'wavelength', 0.005, 3, 0.01)
+  .name('Wavelength')
+  .onChange((value) => wavelength = value);
+
+
+gui.add(Objects, 'amplitude', 0.2, 6, 0.01)
+  .name('Amplitude')
+  .onChange((value) => amplitude = value);
+
+
+gui.add({ function: "Sin" }, "function", ["Sin", "Cos", "Tan"])
+  .name("Function")
+  .onChange(changeFunction);
+
+
 gui.add(particles, 'visible').name('Visibility');
 
 //Adding Objects to scene
@@ -98,15 +127,15 @@ scene.add(axisHelper);
 const clock = new THREE.Clock();
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  
+
   for (let i = 0; i < count; i++) {
     const i3 = i * 3;
     const x = Geo.attributes.position.array[i3];
-    Geo.attributes.position.array[i3 + 1] = Math.sin(elapsedTime + x / Objects.wavelength) * Objects.amplitude;
+    Geo.attributes.position.array[i3 + 1] = Objects.function(elapsedTime + x / Objects.wavelength) * Objects.amplitude;
   }
 
   Geo.attributes.position.needsUpdate = true;
-  
+
 
   controls.update();
   renderer.render(scene, camera);
@@ -120,10 +149,10 @@ tick();
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
-  
+
   camera.aspect = sizes.width / sizes.height;
   camera.updateProjectionMatrix();
-  
+
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
