@@ -41,7 +41,6 @@ const App = () => {
     color: 0xff0000
   });
   const mesh = new THREE.Mesh(geo, mat);
-  console.log(mesh);
 
 
 
